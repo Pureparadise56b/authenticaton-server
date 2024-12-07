@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your OTP</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica", "Arial", sans-serif;
+        background-color: #f9f9fb;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e8e8e8;
+      }
+      .email-header {
+        background-color: #222;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .email-header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .email-body {
+        padding: 20px;
+        color: #4a4a4a;
+        text-align: center;
+      }
+      .email-body p {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0 0 20px;
+      }
+      .otp-box {
+        display: inline-block;
+        font-size: 32px;
+        font-weight: bold;
+        color: #222;
+        background-color: #f2f8ff;
+        padding: 15px 30px;
+        border-radius: 8px;
+        margin: 20px 0;
+        letter-spacing: 3px;
+        border: 1px dashed #222;
+      }
+      .email-footer {
+        padding: 15px;
+        font-size: 12px;
+        color: #9b9b9b;
+        text-align: center;
+        background-color: #f9f9fb;
+        border-top: 1px solid #e8e8e8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="email-header">
+        <h1>Your OTP Code</h1>
+      </div>
+      <!-- Body -->
+      <div class="email-body">
+        <p>Hello, {{email}}</p>
+        <p>
+          Use the code below to complete your action. This OTP is valid for the
+          next 1 hour.
+        </p>
+        <div class="otp-box">{{otp}}</div>
+        <p>
+          If you didn't request this, please ignore this email or contact
+          support.
+        </p>
+      </div>
+      <!-- Footer -->
+      <div class="email-footer">© 2024 Your Company. All rights reserved.</div>
+    </div>
+  </body>
+</html>

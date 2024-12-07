@@ -1,0 +1,25 @@
+services:
+  web-api:
+    image: web-api:latest # Use the image you built for your API server
+    build:
+      context: . # Build the Dockerfile in the current directory
+    ports:
+      - "5000:5000" # Map port 3000 on the host to port 3000 in the container
+    env_file:
+      - .env.local # specify the production environment file
+    depends_on:
+      - redis # Ensure Redis starts before the web API
+      - mongo
+
+  redis:
+    image: redis:alpine # Use the lightweight Redis Alpine image
+    ports:
+      - "6379:6379" # Map Redis default port
+    command: ["redis-server", "--appendonly", "yes"] # Optional: Enable persistence
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017" # Expose MongoDB default port
+    environment:
+      MONGO_INITDB_DATABASE: db # Initialize the database
