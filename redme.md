@@ -243,3 +243,45 @@
       "header_naame": "X-CSRF-TOKEN"
     }
     ```
+
+## Docker command to build the server image
+
+```bash
+docker build -t <image-name> .
+```
+
+## Docker commands to spin up the container
+
+### for development
+
+- `start the container`
+
+```bash
+docker-compose -f docker-compose-dev.yml up --build
+```
+
+- `stop the contianer`
+
+```bash
+docker-compose -f docker-compose-dev.yml down
+```
+
+### for production
+
+- `start the container`
+
+```bash
+docker-compose -f docker-compose.yml up --build
+```
+
+- `stop the contianer`
+
+```bash
+docker-compose -f docker-compose.yml down
+```
+
+## how to run the server
+
+- create a `.env.local` file in the root directory if the server needs to run in locally, and run the development command of docker.
+
+- fill the `.env.prod` file in the root directory if the server is in production environment, make sure the cloud service for `redis` and `mongodb` databse is used.
