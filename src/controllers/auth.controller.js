@@ -17,6 +17,7 @@ const {
   CSRF_TOKEN_HEADER_NAME,
   CLIENT_GET_PASSWORD_PAGE,
   CLIENT_OTP_VERIFY_PAGE,
+  HTTP_STATUS,
 } = require("../variables");
 const UserRepo = require("../repository/user.repository");
 const AccountRepo = require("../repository/account.repository");
@@ -68,9 +69,11 @@ class AuthController {
           ? CLIENT_GET_PASSWORD_PAGE
           : CLIENT_OTP_VERIFY_PAGE;
 
-        return res
-          .status(409)
-          .json({ status: 409, error: "Conflict", next_path: nextPath });
+        return res.status(409).json({
+          status: 409,
+          error: HTTP_STATUS.CONFLICT,
+          next_path: nextPath,
+        });
       }
     }
 
@@ -102,8 +105,8 @@ class AuthController {
 
     res.status(201).json({
       status: 201,
-      message: "Created",
-      next_path: "/api/auth/email/verify",
+      message: HTTP_STATUS.CREATED,
+      next_path: CLIENT_OTP_VERIFY_PAGE,
     });
   });
 
@@ -112,9 +115,11 @@ class AuthController {
 
     const isEmailExists = await this.userRepo.emailExists(id);
 
-    res
-      .status(200)
-      .json({ status: 200, message: "OK", email_exists: isEmailExists });
+    res.status(200).json({
+      status: 200,
+      message: HTTP_STATUS.OK,
+      email_exists: isEmailExists,
+    });
   });
 
   verifyUserEmail = AsyncRequestHandler(async (req, res, next) => {
@@ -132,20 +137,18 @@ class AuthController {
     if (!otpInSession || otp !== otpInSession)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Invalid otp provided",
       });
 
     const userData = JSON.parse(await redisClient.get(`reg:${sessionId}`));
 
     if (userData.verified)
-      return res
-        .status(409)
-        .json({
-          status: 409,
-          error: "Conflict",
-          next_path: CLIENT_GET_PASSWORD_PAGE,
-        });
+      return res.status(409).json({
+        status: 409,
+        error: HTTP_STATUS.CONFLICT,
+        next_path: CLIENT_GET_PASSWORD_PAGE,
+      });
 
     await redisClient.setex(
       `reg:${sessionId}`,
@@ -155,7 +158,7 @@ class AuthController {
 
     res.status(200).json({
       status: 200,
-      message: "OK",
+      message: HTTP_STATUS.OK,
       next_path: CLIENT_GET_PASSWORD_PAGE,
     });
   });
@@ -178,7 +181,7 @@ class AuthController {
     if (!userData.verified)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "User not verified",
       });
 
@@ -209,7 +212,7 @@ class AuthController {
         })
       : res.status(201).json({
           status: 201,
-          message: "User created",
+          message: HTTP_STATUS.CREATED,
         });
   });
 
@@ -221,7 +224,7 @@ class AuthController {
     if (!otpInSession)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Invalid otp provided",
       });
 
@@ -233,7 +236,7 @@ class AuthController {
       subject: "you one time password is " + otpInSession,
     });
 
-    res.status(200).json({ status: 200, message: "OK" });
+    res.status(200).json({ status: 200, message: HTTP_STATUS.OK });
   });
 
   // authenticating user
@@ -249,7 +252,7 @@ class AuthController {
     if (!user)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Bad credentials",
       });
 
@@ -262,7 +265,7 @@ class AuthController {
     if (!isPasswordMatched)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Bad credentials",
       });
 
@@ -271,7 +274,7 @@ class AuthController {
     if (!tokens)
       return res.status(500).json({
         status: 500,
-        error: "Internal Server Error",
+        error: HTTP_STATUS.INTERNAL_SERVER_ERROR,
         message: "Error while generating token",
       });
 
@@ -283,7 +286,7 @@ class AuthController {
     if (!isUpdate)
       return res.status(500).json({
         status: 500,
-        error: "Internal Server Error",
+        error: HTTP_STATUS.INTERNAL_SERVER_ERROR,
         message: "Error while serializing user",
       });
 
@@ -305,7 +308,7 @@ class AuthController {
       sameSite: "lax",
     });
 
-    res.status(200).json({ status: 200, message: "OK", tokens });
+    res.status(200).json({ status: 200, message: HTTP_STATUS.OK, tokens });
   });
 
   generateNewAccessToken = AsyncRequestHandler(async (req, res, next) => {
@@ -318,7 +321,7 @@ class AuthController {
     if (!refreshToken)
       return res.status(401).json({
         status: 401,
-        error: "Unauthorized",
+        error: HTTP_STATUS.UNAUTHORIZED,
         message: "Refresh token missing",
       });
 
@@ -327,7 +330,7 @@ class AuthController {
     if (!payload)
       return res.status(401).json({
         status: 401,
-        error: "Unauthorized",
+        error: HTTP_STATUS.UNAUTHORIZED,
         message: "Invalid Refresh token",
       });
 
@@ -336,7 +339,7 @@ class AuthController {
     if (!userAccount || refreshToken !== userAccount.refreshToken)
       return res.status(401).json({
         status: 401,
-        error: "Unauthorized",
+        error: HTTP_STATUS.UNAUTHORIZED,
         message: "Invalid Refresh token",
       });
 
@@ -351,7 +354,9 @@ class AuthController {
       sameSite: "lax",
     });
 
-    res.status(200).json({ status: 200, message: "OK", newAccessToken });
+    res
+      .status(200)
+      .json({ status: 200, message: HTTP_STATUS.OK, newAccessToken });
   });
 
   forgetPasswordHandler = AsyncRequestHandler(async (req, res, next) => {
@@ -359,16 +364,18 @@ class AuthController {
     const isEmailExists = await this.userRepo.emailExists(email);
 
     if (!isEmailExists)
-      return res
-        .status(400)
-        .json({ status: 400, error: "Bad Request", message: "Invalid Email" });
+      return res.status(400).json({
+        status: 400,
+        error: HTTP_STATUS.BAD_REQUEST,
+        message: "Invalid Email",
+      });
 
     const passwordResetToken = this.tokenUtils.generatePasswordResetToken();
 
     const passwordResetTokenHash =
       this.tokenUtils.hashPasswordResetToken(passwordResetToken);
 
-    redisClient.setex(
+    await redisClient.setex(
       `reset-tokens:${passwordResetToken}`,
       900,
       JSON.stringify({ user: email, hash: passwordResetTokenHash })
@@ -382,10 +389,30 @@ class AuthController {
 
     res.status(200).json({
       status: 200,
-      message: "OK",
-      next_path: "/api/auth/pwd/reset?mail=true",
+      message: HTTP_STATUS.OK,
     });
   });
+
+  checkUserResetPasswordRequestValid = AsyncRequestHandler(
+    async (req, res, next) => {
+      const { token } = req.query;
+
+      const storedResetTokenDataString = await redisClient.get(
+        `reset-tokens:${token}`
+      );
+
+      return storedResetTokenDataString === null
+        ? res.status(404).json({
+            status: 400,
+            error: HTTP_STATUS.NOT_FOUND,
+            message: "Token Not Found",
+          })
+        : res.status(200).json({
+            status: 200,
+            success: true,
+          });
+    }
+  );
 
   resetUserPassword = AsyncRequestHandler(async (req, res, next) => {
     const { mail } = req.query;
@@ -394,7 +421,7 @@ class AuthController {
     if (!mail)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Invalid request",
       });
 
@@ -405,7 +432,7 @@ class AuthController {
     if (!storedResetTokenDataString)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Invalid resetToken",
       });
 
@@ -416,7 +443,7 @@ class AuthController {
     if (resetTokenHashed !== storedResetTokenData.hash)
       return res.status(400).json({
         status: 400,
-        error: "Bad Request",
+        error: HTTP_STATUS.BAD_REQUEST,
         message: "Invalid resetToken",
       });
 
@@ -430,7 +457,7 @@ class AuthController {
 
     if (isPasswordUpdated) await redisClient.del(`reset-tokens:${resetToken}`);
 
-    res.status(200).json({ status: 200, message: "OK" });
+    res.status(200).json({ status: 200, message: HTTP_STATUS.OK });
   });
 
   logoutUser = AsyncRequestHandler(async (req, res, next) => {
@@ -441,14 +468,14 @@ class AuthController {
     if (!isUpdated)
       return res.status(400).json({
         status: 500,
-        error: "Internal Server Error",
+        error: HTTP_STATUS.INTERNAL_SERVER_ERROR,
         message: "Something went wrong",
       });
 
     res.clearCookie(USER_AUTH_COOKIE_NAME);
     res.clearCookie(USER_REFRESH_TOKEN_NAME);
 
-    res.status(200).json({ status: 200, message: "OK" });
+    res.status(200).json({ status: 200, message: HTTP_STATUS.OK });
   });
 
   getCsrfToken = AsyncRequestHandler(async (req, res, next) => {
@@ -458,7 +485,7 @@ class AuthController {
 
     res.status(200).json({
       status: 200,
-      message: "OK",
+      message: HTTP_STATUS.OK,
       csrf: csrfToken,
       header_name: CSRF_TOKEN_HEADER_NAME,
     });

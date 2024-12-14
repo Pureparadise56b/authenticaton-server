@@ -94,6 +94,10 @@ class AuthRouter {
       );
 
     this.router
+      .route("/pwd/reset/check-token")
+      .get(this.controller.checkUserResetPasswordRequestValid);
+
+    this.router
       .route("/pwd/reset")
       .post(
         this.csrfMiddleware.preventCsrf,

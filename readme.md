@@ -187,7 +187,22 @@
     }
     ```
 
-#### 9. Generate New Access Token
+#### 9. Check If The Reset Password Token Is Valid Or Not
+
+- **URL:** `/pwd/reset/check-token?token=value`
+- **Method:** `GET`
+- **Description:** Check If The Reset Password Token Is Valid Or Not
+- **Response:**
+  - **Status:** `200 OK`
+  - **Body:**
+    ```json
+    {
+      "status": 200,
+      "success": "true" | "false"
+    }
+    ```
+
+#### 10. Generate New Access Token
 
 - **URL:** `/token/renew`
 - **Method:** `POST`
@@ -210,7 +225,7 @@
     }
     ```
 
-#### 10. Logout User
+#### 11. Logout User
 
 - **URL:** `/logout`
 - **Method:** `POST`
@@ -226,7 +241,7 @@
     }
     ```
 
-#### 11. Get CSRF Token
+#### 12. Get CSRF Token
 
 - **URL:** `/csrf`
 - **Method:** `GET`
