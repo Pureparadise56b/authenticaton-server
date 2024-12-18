@@ -29,7 +29,18 @@ class WebApplication {
     this.start = this.start.bind(this);
     this.server.use(
       cors({
-        origin: [CLIENT_URL, "http://localhost"],
+        origin: function (origin, callback) {
+          if (
+            !origin ||
+            (Array.isArray(CLIENT_URL) && CLIENT_URL.includes(origin))
+          ) {
+            callback(null, true);
+          } else if (!origin || CLIENT_URL === origin) {
+            callback(null, true);
+          } else {
+            callback(null, false);
+          }
+        },
         credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
       })
@@ -47,6 +58,7 @@ class WebApplication {
     this.server.use("/api/auth", new AuthRouter().registerRoutes());
 
     this.server.use(this.errorMiddleware.handleServerSideErrors);
+    this.server.use(this.errorMiddleware.handleUnrecognizedUrlHitErrors);
   }
 
   /**

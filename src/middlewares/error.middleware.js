@@ -12,14 +12,16 @@ class ErrorMiddleware {
     const status = err.status || 500;
     const message = err.message || "Something Went Wrong";
 
-    res
-      .status(status)
-      .json({
-        status,
-        error: "Internal Server Error",
-        message,
-        stack: PROJECT_ENVIRONMENT == "prod" ? undefined : err.stack,
-      });
+    res.status(status).json({
+      status,
+      error: "Internal Server Error",
+      message,
+      stack: PROJECT_ENVIRONMENT == "prod" ? undefined : err.stack,
+    });
+  }
+
+  handleUnrecognizedUrlHitErrors(_, res, __) {
+    res.status(404).send();
   }
 }
 
